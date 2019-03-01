@@ -265,35 +265,6 @@ int mbedtls_x509write_crt_set_ns_cert_type( mbedtls_x509write_cert *ctx,
     return( 0 );
 }
 
-static int x509_write_time( unsigned char **p, unsigned char *start,
-                            const char *t, size_t size )
-{
-    int ret;
-    size_t len = 0;
-
-    /*
-     * write MBEDTLS_ASN1_UTC_TIME if year < 2050 (2 bytes shorter)
-     */
-    if( t[0] == '2' && t[1] == '0' && t[2] < '5' )
-    {
-        MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_raw_buffer( p, start,
-                                             (const unsigned char *) t + 2,
-                                             size - 2 ) );
-        MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_len( p, start, len ) );
-        MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_tag( p, start, MBEDTLS_ASN1_UTC_TIME ) );
-    }
-    else
-    {
-        MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_raw_buffer( p, start,
-                                                  (const unsigned char *) t,
-                                                  size ) );
-        MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_len( p, start, len ) );
-        MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_tag( p, start, MBEDTLS_ASN1_GENERALIZED_TIME ) );
-    }
-
-    return( (int) len );
-}
-
 int mbedtls_x509write_crt_der( mbedtls_x509write_cert *ctx, unsigned char *buf, size_t size,
                        int (*f_rng)(void *, unsigned char *, size_t),
                        void *p_rng )
@@ -367,10 +338,10 @@ int mbedtls_x509write_crt_der( mbedtls_x509write_cert *ctx, unsigned char *buf, 
      */
     sub_len = 0;
 
-    MBEDTLS_ASN1_CHK_ADD( sub_len, x509_write_time( &c, tmp_buf, ctx->not_after,
+    MBEDTLS_ASN1_CHK_ADD( sub_len, mbedtls_x509_write_time( &c, tmp_buf, ctx->not_after,
                                             MBEDTLS_X509_RFC5280_UTC_TIME_LEN ) );
 
-    MBEDTLS_ASN1_CHK_ADD( sub_len, x509_write_time( &c, tmp_buf, ctx->not_before,
+    MBEDTLS_ASN1_CHK_ADD( sub_len, mbedtls_x509_write_time( &c, tmp_buf, ctx->not_before,
                                             MBEDTLS_X509_RFC5280_UTC_TIME_LEN ) );
 
     len += sub_len;
