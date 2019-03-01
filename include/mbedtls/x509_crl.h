@@ -282,6 +282,28 @@ int mbedtls_x509write_crl_set_extension( mbedtls_x509write_crl *ctx,
                                  int critical,
                                  const unsigned char *val, size_t val_len );
 
+#if defined(MBEDTLS_SHA1_C)
+/**
+ * \brief           Set the authorityKeyIdentifier extension for a CRL
+ *                  Requires that mbedtls_x509write_crl_set_issuer_key() has been
+ *                  called before
+ *
+ * \param ctx       CRL context to use
+ *
+ * \return          0 if successful, or a MBEDTLS_ERR_X509_ALLOC_FAILED
+ */
+int mbedtls_x509write_crl_set_authority_key_identifier( mbedtls_x509write_crl *ctx );
+#endif /* MBEDTLS_SHA1_C */
+
+/**
+ * \brief           Set the CRLNumber extension for a CRL
+ *
+ * \param ctx       CRL context to use
+ *
+ * \return          0 if successful, or a MBEDTLS_ERR_X509_ALLOC_FAILED
+ */
+int mbedtls_x509write_crl_set_crl_number( mbedtls_x509write_crl *ctx, const mbedtls_mpi *crl_number );
+
 /**
  * \brief           Add an entry for a revoked certificate
  *
@@ -334,6 +356,15 @@ int mbedtls_x509write_crl_entry_set_extension( mbedtls_x509write_crl_entry *ctx,
                                  const char *oid, size_t oid_len,
                                  int critical,
                                  const unsigned char *val, size_t val_len );
+
+/**
+ * \brief           Set the reason extension for a CRL entry
+ *
+ * \param ctx       CRL entry context to use
+ *
+ * \return          0 if successful, or a MBEDTLS_ERR_X509_ALLOC_FAILED
+ */
+int mbedtls_x509write_crl_entry_set_reason( mbedtls_x509write_crl_entry *ctx, int reason );
 
 /**
  * \brief           Free the contents of a CRL write context

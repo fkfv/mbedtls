@@ -131,6 +131,53 @@ int mbedtls_x509write_crl_set_extension( mbedtls_x509write_crl *ctx,
                                critical, val, val_len );
 }
 
+#if defined(MBEDTLS_SHA1_C)
+int mbedtls_x509write_crl_set_authority_key_identifier( mbedtls_x509write_crl *ctx )
+{
+    int ret;
+    unsigned char buf[MBEDTLS_MPI_MAX_SIZE * 2 + 20]; /* tag, length + 2xMPI */
+    unsigned char *c = buf + sizeof( buf );
+    size_t len = 0;
+
+    memset( buf, 0, sizeof(buf) );
+    MBEDTLS_ASN1_CHK_ADD( len, mbedtls_pk_write_pubkey( &c, buf, ctx->issuer_key ) );
+
+    ret = mbedtls_sha1_ret( buf + sizeof( buf ) - len, len,
+                            buf + sizeof( buf ) - 20 );
+    if( ret != 0 )
+        return( ret );
+    c = buf + sizeof( buf ) - 20;
+    len = 20;
+
+    MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_len( &c, buf, len ) );
+    MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_tag( &c, buf, MBEDTLS_ASN1_CONTEXT_SPECIFIC | 0 ) );
+
+    MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_len( &c, buf, len ) );
+    MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_tag( &c, buf, MBEDTLS_ASN1_CONSTRUCTED |
+                                                MBEDTLS_ASN1_SEQUENCE ) );
+
+    return mbedtls_x509write_crl_set_extension( ctx, MBEDTLS_OID_AUTHORITY_KEY_IDENTIFIER,
+                                   MBEDTLS_OID_SIZE( MBEDTLS_OID_AUTHORITY_KEY_IDENTIFIER ),
+                                   0, buf + sizeof( buf ) - len, len );
+}
+#endif /* MBEDTLS_SHA1_C */
+
+int mbedtls_x509write_crl_set_crl_number( mbedtls_x509write_crl *ctx, const mbedtls_mpi *crl_number )
+{
+    int ret;
+    char buf[32];
+    unsigned char *c = buf + sizeof(buf);
+    size_t len = 0;
+
+    memset( buf, 0, sizeof(buf) );
+
+    MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_mpi( &c, buf, crl_number ) );
+
+    return mbedtls_x509write_crl_set_extension( ctx, MBEDTLS_OID_CRL_NUMBER,
+                                   MBEDTLS_OID_SIZE( MBEDTLS_OID_CRL_NUMBER ),
+                                   0, buf + sizeof( buf ) - len, len );
+}
+
 mbedtls_x509write_crl_entry *mbedtls_x509write_crl_entry_add( mbedtls_x509write_crl *ctx )
 {
     mbedtls_x509write_crl_entry *cur;
@@ -178,6 +225,32 @@ int mbedtls_x509write_crl_entry_set_extension( mbedtls_x509write_crl_entry *ctx,
 {
     return mbedtls_x509_set_extension( &ctx->extensions, oid, oid_len,
                                critical, val, val_len );
+}
+
+int mbedtls_x509write_crl_entry_set_reason( mbedtls_x509write_crl_entry *ctx, int reason )
+{
+    int ret;
+    char buf[32];
+    char creason;
+    unsigned char *c = buf + sizeof(buf);
+    size_t len = 0;
+
+    creason = (char)reason;
+
+    memset( buf, 0, sizeof(buf) );
+
+    if( reason != 0 )
+    {
+        MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_raw_buffer( &c, buf, &creason, sizeof(char) ) );
+        MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_len( &c, buf, sizeof(char) ) );
+        MBEDTLS_ASN1_CHK_ADD( len, mbedtls_asn1_write_tag( &c, buf, 0x0A /* enumeration */ ) );
+
+        return mbedtls_x509write_crl_entry_set_extension( ctx, MBEDTLS_OID_CRL_REASON,
+                                       MBEDTLS_OID_SIZE( MBEDTLS_OID_CRL_REASON ),
+                                       0, buf + sizeof( buf ) - len, len );
+    }
+
+    return( 0 );
 }
 
 static int x509_write_crl_entry( unsigned char **p, unsigned char *start, mbedtls_x509write_crl_entry* cur_entry )

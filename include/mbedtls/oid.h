@@ -169,6 +169,7 @@
  */
 #define MBEDTLS_OID_PRIVATE_KEY_USAGE_PERIOD    MBEDTLS_OID_ID_CE "\x10"
 #define MBEDTLS_OID_CRL_NUMBER                  MBEDTLS_OID_ID_CE "\x14" /**< id-ce-cRLNumber OBJECT IDENTIFIER ::= { id-ce 20 } */
+#define MBEDTLS_OID_CRL_REASON                  MBEDTLS_OID_ID_CE "\x15" /**< id-ce-cRLReasons OBJECT IDENTIFIER ::= { id-ce 21 } */
 
 /*
  * X.509 v3 Extended key usage OIDs
