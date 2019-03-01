@@ -305,6 +305,7 @@
     <ClCompile Include="..\..\library\x509_csr.c" />
     <ClCompile Include="..\..\library\x509write_crt.c" />
     <ClCompile Include="..\..\library\x509write_csr.c" />
+    <ClCompile Include="..\..\library\x509write_crl.c" />
     <ClCompile Include="..\..\library\xtea.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

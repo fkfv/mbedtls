@@ -1914,6 +1914,7 @@
  *          library/x509_create.c
  *          library/x509write_crt.c
  *          library/x509write_csr.c
+ *          library/x509write_crl.c
  */
 #define MBEDTLS_ASN1_WRITE_C
 
@@ -2503,6 +2504,7 @@
  *          library/x509_csr.c
  *          library/x509write_crt.c
  *          library/x509write_csr.c
+ *          library/x509write_crl.c
  *
  * This modules translates between OIDs and internal values.
  */
@@ -2549,6 +2551,7 @@
  * Caller:  library/pkwrite.c
  *          library/x509write_crt.c
  *          library/x509write_csr.c
+ *          library/x509write_crl.c
  *
  * Requires: MBEDTLS_BASE64_C
  *
@@ -3038,6 +3041,19 @@
  * This module is required for X.509 certificate creation.
  */
 #define MBEDTLS_X509_CRT_WRITE_C
+
+/**
+ * \def MBEDTLS_X509_CRL_WRITE_C
+ *
+ * Enable creating X.509 certificate revocation lists.
+ *
+ * Module:  library/x509write_crt.c
+ *
+ * Requires: MBEDTLS_X509_CREATE_C
+ *
+ * This module is required for X.509 certificate revocation list creation.
+ */
+#define MBEDTLS_X509_CRL_WRITE_C
 
 /**
  * \def MBEDTLS_X509_CSR_WRITE_C
