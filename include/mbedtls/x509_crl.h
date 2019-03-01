@@ -96,6 +96,37 @@ typedef struct mbedtls_x509_crl
 }
 mbedtls_x509_crl;
 
+#define MBEDTLS_X509_CRL_VERSION_1              0
+#define MBEDTLS_X509_CRL_VERSION_2              1
+
+/**
+ * Container for writing a certificate revocation list entry (CRL entry)
+ */
+typedef struct mbedtls_x509write_crl_entry
+{
+    mbedtls_mpi serial;
+    char revocation_date[MBEDTLS_X509_RFC5280_UTC_TIME_LEN + 1];
+    mbedtls_asn1_named_data *extensions;
+    struct mbedtls_x509write_crl_entry *next;
+}
+mbedtls_x509write_crl_entry;
+
+/**
+ * Container for writing a certificate revocation list (CRL)
+ */
+typedef struct mbedtls_x509write_crl
+{
+    int version;
+    mbedtls_md_type_t md_alg;
+    mbedtls_pk_context *issuer_key;
+    mbedtls_asn1_named_data *issuer;
+    char this_update[MBEDTLS_X509_RFC5280_UTC_TIME_LEN + 1];
+    char next_update[MBEDTLS_X509_RFC5280_UTC_TIME_LEN + 1];
+    mbedtls_x509write_crl_entry *entries;
+    mbedtls_asn1_named_data *extensions;
+}
+mbedtls_x509write_crl;
+
 /**
  * \brief          Parse a DER-encoded CRL and append it to the chained list
  *
