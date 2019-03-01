@@ -198,6 +198,197 @@ void mbedtls_x509_crl_free( mbedtls_x509_crl *crl );
 /* \} name */
 /* \} addtogroup x509_module */
 
+#if defined(MBEDTLS_X509_CRL_WRITE_C)
+/**
+ * \brief           Initialize a CRL writing context
+ *
+ * \param ctx       CRL context to initialize
+ */
+void mbedtls_x509write_crl_init( mbedtls_x509write_crl *ctx );
+
+/**
+ * \brief           Set the verion for a Certificate Revocation List
+ *                  Default: MBEDTLS_X509_CRL_VERSION_2
+ *
+ * \param ctx       CRL context to use
+ * \param version   version to set (MBEDTLS_X509_CRL_VERSION_1 or MBEDTLS_X509_CRL_VERSION_2)
+ */
+void mbedtls_x509write_crl_set_version( mbedtls_x509write_crl *ctx, int version );
+
+/**
+ * \brief           Set the MD algorithm to use for the signature
+ *                  (e.g. MBEDTLS_MD_SHA1)
+ *
+ * \param ctx       CRL context to use
+ * \param md_alg    MD algorithm to use
+ */
+void mbedtls_x509write_crl_set_md_alg( mbedtls_x509write_crl *ctx, mbedtls_md_type_t md_alg );
+
+/**
+ * \brief           Set the issuer name for a Certificate Revocation List
+ *                  Issuer names should contain a comma-separated list
+ *                  of OID types and values:
+ *                  e.g. "C=UK,O=ARM,CN=mbed TLS CA"
+ *
+ * \param ctx           CRL context to use
+ * \param issuer_name   issuer name to set
+ *
+ * \return          0 if issuer name was parsed successfully, or
+ *                  a specific error code
+ */
+int mbedtls_x509write_crl_set_issuer_name( mbedtls_x509write_crl *ctx,
+                                   const char *issuer_name );
+
+/**
+ * \brief           Set the issuer key used for signing the certificate revocation list
+ *
+ * \param ctx       CRL context to use
+ * \param key       private key to sign with
+ */
+void mbedtls_x509write_crl_set_issuer_key( mbedtls_x509write_crl *ctx, mbedtls_pk_context *key );
+
+/**
+ * \brief           Set the update times for a Certificate Revocation List
+ *                  Timestamps should be in string format for UTC timezone
+ *                  i.e. "YYYYMMDDhhmmss"
+ *                  e.g. "20131231235959" for December 31st 2013
+ *                       at 23:59:59
+ *
+ * \param ctx       CRL context to use
+ * \param this_update    this_update timestamp
+ * \param next_update    next_update timestamp
+ *
+ * \return          0 if timestamp was parsed successfully, or
+ *                  a specific error code
+ */
+int mbedtls_x509write_crl_set_update( mbedtls_x509write_crl *ctx, const char *this_update,
+                                const char *next_update );
+
+/**
+ * \brief           Generic function to add to or replace an extension in the
+ *                  CRL
+ *
+ * \param ctx       CRL context to use
+ * \param oid       OID of the extension
+ * \param oid_len   length of the OID
+ * \param critical  if the extension is critical (per the RFC's definition)
+ * \param val       value of the extension OCTET STRING
+ * \param val_len   length of the value data
+ *
+ * \return          0 if successful, or a MBEDTLS_ERR_X509_ALLOC_FAILED
+ */
+int mbedtls_x509write_crl_set_extension( mbedtls_x509write_crl *ctx,
+                                 const char *oid, size_t oid_len,
+                                 int critical,
+                                 const unsigned char *val, size_t val_len );
+
+/**
+ * \brief           Add an entry for a revoked certificate
+ *
+ * \param ctx       CRL context to use
+ *
+ * \return          0 if entry was added successfully, or
+ *                  a specific error code
+ */
+mbedtls_x509write_crl_entry *mbedtls_x509write_crl_entry_add( mbedtls_x509write_crl *ctx );
+
+/**
+ * \brief           Set the serial number for a CRL entry.
+ *
+ * \param ctx       CRL entry context to use
+ * \param serial    serial number to set
+ *
+ * \return          0 if successful
+ */
+int mbedtls_x509write_crl_entry_set_serial( mbedtls_x509write_crl_entry *ctx, const mbedtls_mpi *serial );
+
+/**
+ * \brief           Set the revokation date for a CRL entry
+ *                  Timestamps should be in string format for UTC timezone
+ *                  i.e. "YYYYMMDDhhmmss"
+ *                  e.g. "20131231235959" for December 31st 2013
+ *                       at 23:59:59
+ *
+ * \param ctx       CRL entry context to use
+ * \param revocation_date    revocation_date timestamp
+ *
+ * \return          0 if timestamp was parsed successfully, or
+ *                  a specific error code
+ */
+int mbedtls_x509write_crl_entry_set_revocation_date( mbedtls_x509write_crl_entry *ctx, const char *revocation_date );
+
+/**
+ * \brief           Generic function to add to or replace an extension in a
+ *                  CRL entry
+ *
+ * \param ctx       CRL entry context to use
+ * \param oid       OID of the extension
+ * \param oid_len   length of the OID
+ * \param critical  if the extension is critical (per the RFC's definition)
+ * \param val       value of the extension OCTET STRING
+ * \param val_len   length of the value data
+ *
+ * \return          0 if successful, or a MBEDTLS_ERR_X509_ALLOC_FAILED
+ */
+int mbedtls_x509write_crl_entry_set_extension( mbedtls_x509write_crl_entry *ctx,
+                                 const char *oid, size_t oid_len,
+                                 int critical,
+                                 const unsigned char *val, size_t val_len );
+
+/**
+ * \brief           Free the contents of a CRL write context
+ *
+ * \param ctx       CRL context to free
+ */
+void mbedtls_x509write_crl_free( mbedtls_x509write_crl *ctx );
+
+/**
+ * \brief           Write a built up certificate revocation list to a X509 DER structure
+ *                  Note: data is written at the end of the buffer! Use the
+ *                        return value to determine where you should start
+ *                        using the buffer
+ *
+ * \param ctx       certificate revocation list to write away
+ * \param buf       buffer to write to
+ * \param size      size of the buffer
+ * \param f_rng     RNG function (for signature, see note)
+ * \param p_rng     RNG parameter
+ *
+ * \return          length of data written if successful, or a specific
+ *                  error code
+ *
+ * \note            f_rng may be NULL if RSA is used for signature and the
+ *                  signature is made offline (otherwise f_rng is desirable
+ *                  for countermeasures against timing attacks).
+ *                  ECDSA signatures always require a non-NULL f_rng.
+ */
+int mbedtls_x509write_crl_der( mbedtls_x509write_crl *ctx, unsigned char *buf, size_t size,
+                       int (*f_rng)(void *, unsigned char *, size_t),
+                       void *p_rng );
+
+#if defined(MBEDTLS_PEM_WRITE_C)
+/**
+ * \brief           Write a built up certificate revocation list to a X509 PEM string
+ *
+ * \param ctx       certificate revocation list to write away
+ * \param buf       buffer to write to
+ * \param size      size of the buffer
+ * \param f_rng     RNG function (for signature, see note)
+ * \param p_rng     RNG parameter
+ *
+ * \return          0 if successful, or a specific error code
+ *
+ * \note            f_rng may be NULL if RSA is used for signature and the
+ *                  signature is made offline (otherwise f_rng is desirable
+ *                  for countermeasures against timing attacks).
+ *                  ECDSA signatures always require a non-NULL f_rng.
+ */
+int mbedtls_x509write_crl_pem( mbedtls_x509write_crl *ctx, unsigned char *buf, size_t size,
+                       int (*f_rng)(void *, unsigned char *, size_t),
+                       void *p_rng );
+#endif /* MBEDTLS_PEM_WRITE_C */
+#endif /* MBEDTLS_X509_CRL_WRITE_C */
+
 #ifdef __cplusplus
 }
 #endif
