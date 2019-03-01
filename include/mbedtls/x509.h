@@ -170,6 +170,9 @@
 
 #define MBEDTLS_X509_MAX_DN_NAME_SIZE         256 /**< Maximum value size of a DN entry */
 
+#define MBEDTLS_X509_RFC5280_MAX_SERIAL_LEN 32
+#define MBEDTLS_X509_RFC5280_UTC_TIME_LEN   15
+
 #ifdef __cplusplus
 extern "C" {
 #endif
