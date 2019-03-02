@@ -69,7 +69,7 @@ static void x509write_crl_entry_free( mbedtls_x509write_crl_entry *ctx )
 
 void mbedtls_x509write_crl_free( mbedtls_x509write_crl *ctx )
 {
-    mbedtls_x509write_crl_entry **head;
+    mbedtls_x509write_crl_entry **head = 0;
     mbedtls_x509write_crl_entry *cur;
 
     mbedtls_asn1_free_named_data_list( &ctx->issuer );
