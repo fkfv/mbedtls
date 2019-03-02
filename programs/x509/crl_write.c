@@ -608,6 +608,7 @@ exit:
     mbedtls_x509write_crl_free( &crl );
     mbedtls_pk_free( &loaded_issuer_key );
     mbedtls_mpi_free( &serial );
+    mbedtls_mpi_free( &crl_number );
     mbedtls_ctr_drbg_free( &ctr_drbg );
     mbedtls_entropy_free( &entropy );
 
