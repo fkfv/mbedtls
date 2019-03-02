@@ -119,6 +119,8 @@ In addition to providing options for testing client-side features, the `ssl_clie
 
 * [`x509/cert_write.c`](x509/cert_write.c): signs a certificate signing request, or self-signs a certificate.
 
+* [`x509/crl_write.c`](x509/crl_write.c): generates a certificate revocation list (CRL) with an entry for a single certificate.
+
 * [`x509/crl_app.c`](x509/crl_app.c): loads and dumps a certificate revocation list (CRL).
 
 * [`x509/req_app.c`](x509/req_app.c): loads and dumps a certificate signing request (CSR).
